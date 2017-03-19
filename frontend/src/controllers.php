@@ -10,7 +10,7 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 $app->get('/', function () use ($app) {
     return $app['twig']->render('index.html.twig', array(
-        'GOOGLE_API' => getenv('GOOGLE_API')
+                'GOOGLE_API' => getenv('GOOGLE_API')
     ));
 });
 
@@ -24,14 +24,14 @@ $app->get('/confirm/{hash}', function ($hash) use ($app) {
     $userId = $app['db']->fetchColumn('SELECT id FROM notifications WHERE hash = ? AND confirmed = 0', array($hash), 0);
 
     // if this is not a valid hash
-    if(!$userId) {
+    if (!$userId) {
         return new Response('Invalid hash.', 500);
     }
 
     // update confirmed status
     $confirmed = $app['db']->executeUpdate('UPDATE notifications SET confirmed = ? WHERE id = ?', array(1, $userId));
 
-    if(!$confirmed) {
+    if (!$confirmed) {
         return new Response('Could not confirm notification.', 500);
     }
 
@@ -42,7 +42,7 @@ $app->get('/confirmed/{hash}', function ($hash) use ($app) {
 
     $notification = $app['db']->fetchAssoc('SELECT * FROM notifications WHERE hash = ?', array($hash));
 
-    if(!$notification) {
+    if (!$notification) {
         return new Response('Invalid hash.', 500);
     }
 
@@ -67,11 +67,15 @@ $app->post('/save', function () use ($app) {
     $stmt->bindValue('hash', $randomHash);
     $result = $stmt->execute();
 
-    $message = 'Klik op onderstaande link om aanmelding te bevestigen.\n<br>';
+    $message = 'Klik op onderstaande link om aanmelding te bevestigen.<br>';
     $message .= 'http://' . getenv('HOST') . '/confirm/' . $randomHash;
 
-    // send confirmation mail, does not work on localhost ?
-    mail($_POST['email'], 'Bevestig je aanmelding', $message);
+    $from = new SendGrid\Email(null, "test@example.com");
+    $to = new SendGrid\Email(null, $_POST['email']);
+    $content = new SendGrid\Content("text/html", $message);
+    $mail = new SendGrid\Mail($from, "Bevestig je aanmelding", $to, $content);
+    $sg = new \SendGrid(getenv('SENDGRID_API'));
+    $sg->client->mail()->send()->post($mail);
 
     return $app->redirect('/please-confirm');
 });
@@ -83,9 +87,9 @@ $app->error(function (\Exception $e, Request $request, $code) use ($app) {
 
     // 404.html, or 40x.html, or 4xx.html, or error.html
     $templates = array(
-        'errors/'.$code.'.html.twig',
-        'errors/'.substr($code, 0, 2).'x.html.twig',
-        'errors/'.substr($code, 0, 1).'xx.html.twig',
+        'errors/' . $code . '.html.twig',
+        'errors/' . substr($code, 0, 2) . 'x.html.twig',
+        'errors/' . substr($code, 0, 1) . 'xx.html.twig',
         'errors/default.html.twig',
     );
 
