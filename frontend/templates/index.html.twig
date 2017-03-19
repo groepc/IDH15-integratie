@@ -1,5 +1,103 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-   
+<!-- Contact -->
+<section id="contact">
+    <div class="container">
+        <div class="row justify-content-md-center">
+            <div class="col-sm-12 col-md-6 text-center">
+                <h2 class="section-heading">Word het fietsweer?</h2>
+                <h3 class="section-subheading text-muted">&nbsp;</h3>
+            </div>
+        </div>
+        <div class="row justify-content-md-center">
+            <div class="col-sm-12 col-md-6">
+                <form name="register" id="register" method="post" action="/save">
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Start locatie *" name="location_start" id="location_start" onFocus="geolocate()" required>
+                        <input type="hidden" name="location_start_lat" id="location_start_lat">
+                        <input type="hidden" name="location_start_lng" id="location_start_lng">
+                    </div>
+
+                    <div class="form-group">
+                        <input type="text" class="form-control" placeholder="Eind locatie *" name="location_end" id="location_end" required>
+                        <input type="hidden" name="location_end_lat" id="location_end_lat">
+                        <input type="hidden" name="location_end_lng" id="location_end_lng">
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="time" class="form-control" placeholder="Notificatietijd *" name="notification_time" id="notification_time" required>
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <div class="form-group">
+                        <input type="email" class="form-control" placeholder="E-mailaders *" name="email" id="email" required>
+                        <p class="help-block text-danger"></p>
+                    </div>
+
+                    <div class="clearfix"></div>
+
+                    <div class="text-center">
+                        <div id="success"></div>
+                        <button type="submit" class="btn btn-xl">Registreren</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete" async defer></script>
+<script>
+
+    var placeSearch, autocomplete;
+    var autocompleteStart, autocompleteEnd;
+
+    function initAutocomplete() {
+        autocompleteStart = new google.maps.places.Autocomplete((document.getElementById('location_start')), { types: ['geocode'] });
+        autocompleteEnd = new google.maps.places.Autocomplete((document.getElementById('location_end')), { types: ['geocode'] });
+
+        autocompleteStart.addListener('place_changed', fillInAddressStart);
+        autocompleteEnd.addListener('place_changed', fillInAddressEnd);
+    }
+
+    function fillInAddressStart() {
+        // Get the place details from the autocomplete object.
+        var place = autocompleteStart.getPlace();
+
+        $('#location_start_lat').val(place.geometry.location.lat());
+        $('#location_start_lng').val(place.geometry.location.lng());
+    }
+
+    function fillInAddressEnd() {
+        // Get the place details from the autocomplete object.
+        var place = autocompleteEnd.getPlace();
+
+        $('#location_end_lat').val(place.geometry.location.lat());
+        $('#location_end_lng').val(place.geometry.location.lng());
+    }
+
+    // Bias the autocomplete object to the user's geographical location,
+    // as supplied by the browser's 'navigator.geolocation' object.
+    function geolocate() {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(function (position) {
+                var geolocation = {
+                    lat: position.coords.latitude,
+                    lng: position.coords.longitude
+                };
+                var circle = new google.maps.Circle({
+                    center: geolocation,
+                    radius: position.coords.accuracy
+                });
+                autocompleteStart.setBounds(circle.getBounds());
+                autocompleteEnd.setBounds(circle.getBounds());
+            });
+        }
+    }
+</script>
 {% endblock %}

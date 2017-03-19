@@ -1,0 +1,21 @@
+section#contact {
+	min-height: 100vh;
+	min-width: 100vw;
+}
+
+ ::-webkit-input-placeholder {
+	color: #aaa !important;
+}
+
+ ::-moz-placeholder {
+	color: #aaa !important;
+	opacity: 1;
+}
+
+ :-ms-input-placeholder {
+	color: #aaa !important;
+}
+
+.section-subheading {
+	color: #fff;
+}
