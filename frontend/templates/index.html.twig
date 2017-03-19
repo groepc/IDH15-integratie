@@ -51,7 +51,7 @@
 {% endblock %}
 
 {% block scripts %}
-<script src="https://maps.googleapis.com/maps/api/js?libraries=places&callback=initAutocomplete" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key={{ GOOGLE_API }}&libraries=places&callback=initAutocomplete" async defer></script>
 <script>
 
     var placeSearch, autocomplete;
