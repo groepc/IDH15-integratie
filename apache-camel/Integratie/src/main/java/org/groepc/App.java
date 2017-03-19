@@ -8,10 +8,9 @@ import org.apache.camel.impl.DefaultCamelContext;
 /**
  * Hello world!
  */
-public class App 
-{
-    public static void main( String[] args ) throws Exception
-    {
+public class App {
+
+    public static void main(String[] args) throws Exception {
         // create CamelContext
         CamelContext context = new DefaultCamelContext();
 
@@ -19,14 +18,17 @@ public class App
         context.addRoutes(new RouteBuilder() {
             public void configure() {
 
+                
                 from("timer://myTimer?period=2000")
                         .setBody()
                         .simple("Hello World Camel fired at ${header.firedTime}")
                         .to("stream:out");
 
-//                from("direct:report")
-//                        .setHeader(Exchange.FILE_NAME, constant("report.txt"))
-//                        .to("file:testfiles/reports");
+                from("timer://foo?fixedRate=true&delay=0&period=10000")
+                        .to("https://randomuser.me/api/")
+                        .setHeader(Exchange.FILE_NAME, constant("message.html"))
+                        //.to("stream:out");
+                        .to("file:target");
 
             }
         });
@@ -39,6 +41,6 @@ public class App
         // stop the CamelContext
         context.stop();
 
-        System.out.println( "== Done ==" );
+        System.out.println("== Done ==");
     }
 }
