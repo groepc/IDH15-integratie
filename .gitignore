@@ -2,3 +2,8 @@
 /frontend/vendor/
 /frontend/var/cache/
 /apache-camel/folderWithFilesToMail/fileToEmail/target/
+.idea
+/apache-camel/Integratie/config.properties
+/apache-camel/Integratie/mylogging.txt
+/apache-camel/Integratie/target
+/apache-camel/folderWithFilesToMail/fileToEmail/mylogging.txt
