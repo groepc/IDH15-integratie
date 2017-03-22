@@ -4,6 +4,7 @@ import org.apache.camel.Main;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
+import org.apache.camel.model.rest.RestBindingMode;
 
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -40,11 +41,41 @@ public class App {
 		@Override
 		public void configure() throws Exception {
 
+			// set how to handle errors
+			errorHandler(deadLetterChannel("mock:error"));
+
 			// load a properties file
 			InputStream input = new FileInputStream("config.properties");
 			this.prop.load(input);
 
-			from("scheduler://defaultTimer?delay=5&timeUnit=SECONDS").to("bean:mySqlBean?method=requestDb");
+
+			// setup rest configuration
+			restConfiguration()
+					.component("jetty")
+					.host("localhost")
+					.port(8080)
+					.bindingMode(RestBindingMode.json)
+					.dataFormatProperty("prettyPrint", "true");
+
+			// define rest endpoints
+			rest("/api")
+					.description("Notification API")
+					.consumes("application/json")
+					.produces("application/json")
+
+					.get("/notify").to("direct:process");
+
+			// define routes
+//			from("direct:hello")
+//					.setBody()
+//					.simple("Hello World Camel fired at ${header.firedTime}")
+//					.to("stream:out");
+
+			from("direct:process")
+					.to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
+					.setBody(constant("{\"resp\": \"hello,summit\"}"));
+
+//			from("scheduler://defaultTimer?delay=5&timeUnit=SECONDS").to("bean:mySqlBean?method=requestDb");
 
 
 //			from("timer://myTimer?period=2000")
