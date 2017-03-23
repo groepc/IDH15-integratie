@@ -1,12 +1,16 @@
 package org.groepc;
 
+import org.apache.camel.Exchange;
 import org.apache.camel.Main;
+import org.apache.camel.Processor;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 import org.apache.camel.model.rest.RestBindingMode;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
@@ -44,36 +48,71 @@ public class App {
 			// set how to handle errors
 			errorHandler(deadLetterChannel("mock:error"));
 
-			// load a properties file
+			// load a properties/configuration file
 			InputStream input = new FileInputStream("config.properties");
 			this.prop.load(input);
+			String host = prop.getProperty("host");
+			Integer port = Integer.parseInt(prop.getProperty("port"));
 
-
-			// setup rest configuration
+			/**
+			 * Setup REST configuration
+			 */
 			restConfiguration()
 					.component("jetty")
-					.host("localhost")
-					.port(8080)
+					.host(host)
+					.port(port)
 					.bindingMode(RestBindingMode.json)
 					.dataFormatProperty("prettyPrint", "true");
 
-			// define rest endpoints
+			/**
+			 * Define our REST API routes, so we can call a Camel
+			 * route through an HTTP request
+			 */
 			rest("/api")
 					.description("Notification API")
 					.consumes("application/json")
 					.produces("application/json")
 
-					.get("/notify").to("direct:process");
+					.post("/notify").type(NotificationPojo.class)
+						.to("direct:process");
 
-			// define routes
+
+			/**
+			 * Define our Camel specific routes
+			 */
+			// kick-off processing of notification
+			from("direct:process")
+					.to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
+					.to("direct:callBuienradar")
+					.to("direct:sendMail")
+
+					.process(new Processor() {
+						public void process(Exchange exchange) throws Exception {
+							NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
+							System.out.println(notif.getEmail());
+
+							// do something with the payload and/or exchange here
+							exchange.getIn().setBody("Changed body");
+						}
+					})
+					.process(new Processor() {
+						public void process(Exchange exchange) throws Exception {
+							String myString = exchange.getIn().getBody(String.class);
+							System.out.println(myString);
+						}
+					})
+					.setBody(constant("{\"resp\": \"hello,summit\"}"));
+
+			// TODO: call buienradar API
+
+			// TODO: send notification
+
+
+
 //			from("direct:hello")
 //					.setBody()
 //					.simple("Hello World Camel fired at ${header.firedTime}")
 //					.to("stream:out");
-
-			from("direct:process")
-					.to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
-					.setBody(constant("{\"resp\": \"hello,summit\"}"));
 
 //			from("scheduler://defaultTimer?delay=5&timeUnit=SECONDS").to("bean:mySqlBean?method=requestDb");
 
@@ -119,9 +158,26 @@ public class App {
 
 	public static class Events extends MainListenerSupport {
 
+		private Properties prop = new Properties();
+
 		@Override
 		public void afterStart(MainSupport main) {
-			System.out.println("MainExample with Camel is now started!");
+
+			// load a properties/configuration file
+			InputStream input = null;
+			try {
+				input = new FileInputStream("config.properties");
+				this.prop.load(input);
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+			String host = prop.getProperty("host");
+			Integer port = Integer.parseInt(prop.getProperty("port"));
+
+			System.out.println("MainExample with Camel is now started on http://" + host + ":" + port);
 		}
 
 		@Override

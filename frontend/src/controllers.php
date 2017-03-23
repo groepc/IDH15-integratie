@@ -1,5 +1,9 @@
 <?php
 
+use SendGrid;
+use SendGrid\Content;
+use SendGrid\Email;
+use SendGrid\Mail;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -8,16 +12,25 @@ use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 //Request::setTrustedProxies(array('127.0.0.1'));
 
+/**
+ * Homepage
+ */
 $app->get('/', function () use ($app) {
     return $app['twig']->render('index.html.twig', array(
                 'GOOGLE_API' => getenv('GOOGLE_API')
     ));
 });
 
+/**
+ * Entry saved to DB. Show please-confirm page.
+ */
 $app->get('/please-confirm', function () use ($app) {
     return $app['twig']->render('please-confirm.html.twig', array());
 });
 
+/**
+ * Confirm a notification entry
+ */
 $app->get('/confirm/{hash}', function ($hash) use ($app) {
 
     // fetch given notificationID by hash
@@ -38,6 +51,9 @@ $app->get('/confirm/{hash}', function ($hash) use ($app) {
     return $app->redirect('/confirmed/' . $hash);
 });
 
+/**
+ * Entry confirmed. Show success message.
+ */
 $app->get('/confirmed/{hash}', function ($hash) use ($app) {
 
     $notification = $app['db']->fetchAssoc('SELECT * FROM notifications WHERE hash = ?', array($hash));
@@ -49,6 +65,31 @@ $app->get('/confirmed/{hash}', function ($hash) use ($app) {
     return $app['twig']->render('confirmed.html.twig', array('notification' => $notification));
 });
 
+/**
+ * Trigger notification for ID
+ */
+$app->get('/trigger/{hash}', function ($hash) use ($app) {
+
+    $notification = $app['db']->fetchAssoc('SELECT * FROM notifications WHERE hash = ?', array($hash));
+
+    if (!$notification) {
+        return new Response('Invalid hash.', 500);
+    }
+
+    $url = 'http://'. getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/notify';
+    $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
+    $response = Requests::post($url, $headers, json_encode($notification));
+
+    var_dump($response->body);
+    var_dump($response->status_code);
+    var_dump($response->headers['content-type']);
+
+//    return $app['twig']->render('confirmed.html.twig', array('notification' => $notification));
+});
+
+/**
+ * Save new entry to DB. Send confirmation mail to mail address
+ */
 $app->post('/save', function () use ($app) {
 
     $randomHash = generateRandomString();
@@ -70,11 +111,11 @@ $app->post('/save', function () use ($app) {
     $message = 'Klik op onderstaande link om aanmelding te bevestigen.<br>';
     $message .= 'http://' . getenv('HOST') . '/confirm/' . $randomHash;
 
-    $from = new SendGrid\Email(null, "test@example.com");
-    $to = new SendGrid\Email(null, $_POST['email']);
-    $content = new SendGrid\Content("text/html", $message);
-    $mail = new SendGrid\Mail($from, "Bevestig je aanmelding", $to, $content);
-    $sg = new \SendGrid(getenv('SENDGRID_API'));
+    $from = new Email(null, "test@example.com");
+    $to = new Email(null, $_POST['email']);
+    $content = new Content("text/html", $message);
+    $mail = new Mail($from, "Bevestig je aanmelding", $to, $content);
+    $sg = new SendGrid(getenv('SENDGRID_API'));
     $sg->client->mail()->send()->post($mail);
 
     return $app->redirect('/please-confirm');
