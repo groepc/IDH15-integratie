@@ -6,7 +6,7 @@
     <div class="container">
         <div class="row justify-content-md-center">
             <div class="col-sm-12 col-md-6 text-center">
-                <h2 class="section-heading">Word het fietsweer?</h2>
+                <h2 class="section-heading">Wordt het fietsweer?</h2>
                 <h3 class="section-subheading text-muted">&nbsp;</h3>
             </div>
         </div>
@@ -15,13 +15,13 @@
                 <form name="register" id="register" method="post" action="/save">
 
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Start locatie *" name="location_start" id="location_start" onFocus="geolocate()" required>
+                        <input type="text" class="form-control" placeholder="Van *" name="location_start" id="location_start" onFocus="geolocate()" required>
                         <input type="hidden" name="location_start_lat" id="location_start_lat">
                         <input type="hidden" name="location_start_lng" id="location_start_lng">
                     </div>
 
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Eind locatie *" name="location_end" id="location_end" required>
+                        <input type="text" class="form-control" placeholder="Naar *" name="location_end" id="location_end" required>
                         <input type="hidden" name="location_end_lat" id="location_end_lat">
                         <input type="hidden" name="location_end_lng" id="location_end_lng">
                         <p class="help-block text-danger"></p>
@@ -33,7 +33,7 @@
                     </div>
 
                     <div class="form-group">
-                        <input type="email" class="form-control" placeholder="E-mailaders *" name="email" id="email" required>
+                        <input type="email" class="form-control" placeholder="E-mailadres *" name="email" id="email" required>
                         <p class="help-block text-danger"></p>
                     </div>
 
