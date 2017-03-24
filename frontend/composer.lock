@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "bd28a0e9e405ed7b6fc8428bcd694fa7",
+    "content-hash": "8713d9383cd1b384fe65ba00f3cff241",
     "packages": [
         {
             "name": "doctrine/annotations",
@@ -2848,16 +2848,16 @@
         },
         {
             "name": "symfony/validator",
-            "version": "v3.0.9",
+            "version": "v3.2.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/validator.git",
-                "reference": "929de96597a8133de0f6a6207a8d196e6d52bd80"
+                "reference": "6a67585f0d2a5cf407cf6cfa53095881dcb0f549"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/validator/zipball/929de96597a8133de0f6a6207a8d196e6d52bd80",
-                "reference": "929de96597a8133de0f6a6207a8d196e6d52bd80",
+                "url": "https://api.github.com/repos/symfony/validator/zipball/6a67585f0d2a5cf407cf6cfa53095881dcb0f549",
+                "reference": "6a67585f0d2a5cf407cf6cfa53095881dcb0f549",
                 "shasum": ""
             },
             "require": {
@@ -2865,20 +2865,25 @@
                 "symfony/polyfill-mbstring": "~1.0",
                 "symfony/translation": "~2.8|~3.0"
             },
+            "conflict": {
+                "phpunit/phpunit": "<4.8.35|<5.4.3,>=5.0"
+            },
             "require-dev": {
                 "doctrine/annotations": "~1.0",
                 "doctrine/cache": "~1.0",
-                "egulias/email-validator": "~1.2,>=1.2.1",
+                "egulias/email-validator": "^1.2.8|~2.0",
+                "symfony/cache": "~3.1",
                 "symfony/config": "~2.8|~3.0",
                 "symfony/expression-language": "~2.8|~3.0",
                 "symfony/http-foundation": "~2.8|~3.0",
-                "symfony/intl": "~2.8|~3.0",
+                "symfony/intl": "^2.8.18|^3.2.5",
                 "symfony/yaml": "~2.8|~3.0"
             },
             "suggest": {
                 "doctrine/annotations": "For using the annotation mapping. You will also need doctrine/cache.",
                 "doctrine/cache": "For using the default cached annotation reader and metadata cache.",
                 "egulias/email-validator": "Strict (RFC compliant) email validation",
+                "psr/cache-implementation": "For using the metadata cache.",
                 "symfony/config": "",
                 "symfony/expression-language": "For using the Expression validator",
                 "symfony/http-foundation": "",
@@ -2889,7 +2894,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "3.0-dev"
+                    "dev-master": "3.2-dev"
                 }
             },
             "autoload": {
@@ -2916,7 +2921,7 @@
             ],
             "description": "Symfony Validator Component",
             "homepage": "https://symfony.com",
-            "time": "2016-07-26T08:03:56+00:00"
+            "time": "2017-02-28T02:30:50+00:00"
         },
         {
             "name": "symfony/var-dumper",
@@ -3050,21 +3055,20 @@
         },
         {
             "name": "twig/twig",
-            "version": "v2.3.0",
+            "version": "v1.33.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/twigphp/Twig.git",
-                "reference": "9718186a5df85a4f7917e78d3ffcabc204c75d25"
+                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/twigphp/Twig/zipball/9718186a5df85a4f7917e78d3ffcabc204c75d25",
-                "reference": "9718186a5df85a4f7917e78d3ffcabc204c75d25",
+                "url": "https://api.github.com/repos/twigphp/Twig/zipball/05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
+                "reference": "05cf49921b13f6f01d3cfdf9018cfa7a8086fd5a",
                 "shasum": ""
             },
             "require": {
-                "php": "^7.0",
-                "symfony/polyfill-mbstring": "~1.0"
+                "php": ">=5.2.7"
             },
             "require-dev": {
                 "psr/container": "^1.0",
@@ -3074,7 +3078,7 @@
             "type": "library",
             "extra": {
                 "branch-alias": {
-                    "dev-master": "2.3-dev"
+                    "dev-master": "1.33-dev"
                 }
             },
             "autoload": {
@@ -3109,7 +3113,7 @@
             "keywords": [
                 "templating"
             ],
-            "time": "2017-03-22T15:41:51+00:00"
+            "time": "2017-03-22T15:40:09+00:00"
         },
         {
             "name": "vlucas/phpdotenv",

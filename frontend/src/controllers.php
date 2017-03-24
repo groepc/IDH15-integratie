@@ -1,6 +1,5 @@
 <?php
 
-use SendGrid;
 use SendGrid\Content;
 use SendGrid\Email;
 use SendGrid\Mail;
@@ -9,6 +8,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\Validator\Constraints as Assert;
 
 //Request::setTrustedProxies(array('127.0.0.1'));
 
@@ -26,6 +26,13 @@ $app->get('/', function () use ($app) {
  */
 $app->get('/please-confirm', function () use ($app) {
     return $app['twig']->render('please-confirm.html.twig', array());
+});
+
+/**
+ * Entry saved to DB. Show please-confirm page.
+ */
+$app->get('/wrong-input', function () use ($app) {
+    return $app['twig']->render('wrong-input.html.twig', array());
 });
 
 /**
@@ -76,7 +83,7 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
         return new Response('Invalid hash.', 500);
     }
 
-    $url = 'http://'. getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/notify';
+    $url = 'http://' . getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/notify';
     $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
     $response = Requests::post($url, $headers, json_encode($notification));
 
@@ -90,20 +97,40 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
 /**
  * Save new entry to DB. Send confirmation mail to mail address
  */
-$app->post('/save', function () use ($app) {
+$app->post('/save', function (Request $request) use ($app) {
+
+
+    $constraint = new Assert\Collection(array(
+        'email' => new Assert\Email(),
+        'notification_time' => new Assert\Time(),
+        'location_start' => new Assert\NotBlank(),
+        'location_start_lat' => new Assert\NotBlank(),
+        'location_start_lng' => new Assert\NotBlank(),
+        'location_end' => new Assert\NotBlank(),
+        'location_end_lat' => new Assert\NotBlank(),
+        'location_end_lng' => new Assert\NotBlank(),
+    ));
+    if (substr_count(':', $_POST['notification_time']) < 2) {
+        $_POST['notification_time'] .= ':00';
+    }
+    $errors = $app['validator']->validate($_POST, $constraint);
+
+    if (count($errors) > 0) {
+        return $app->redirect('/wrong-input');
+    }
 
     $randomHash = generateRandomString();
 
     $sql = 'INSERT INTO notifications (email, notification_time, location_start, location_start_lat, location_start_lng, location_end, location_end_lat, location_end_lng, confirmed, hash) VALUES (:email, :notification_time, :location_start, :location_start_lat, :location_start_lng, :location_end, :location_end_lat, :location_end_lng, :confirmed, :hash)';
     $stmt = $app['db']->prepare($sql);
-    $stmt->bindValue('email', $_POST['email']);
-    $stmt->bindValue('notification_time', $_POST['notification_time']);
-    $stmt->bindValue('location_start', $_POST['location_start']);
-    $stmt->bindValue('location_start_lat', $_POST['location_start_lat']);
-    $stmt->bindValue('location_start_lng', $_POST['location_start_lng']);
-    $stmt->bindValue('location_end', $_POST['location_end']);
-    $stmt->bindValue('location_end_lat', $_POST['location_end_lat']);
-    $stmt->bindValue('location_end_lng', $_POST['location_end_lng']);
+    $stmt->bindValue('email', $request->request->get('email'));
+    $stmt->bindValue('notification_time', $request->request->get('notification_time'));
+    $stmt->bindValue('location_start', $request->request->get('location_start'));
+    $stmt->bindValue('location_start_lat', $request->request->get('location_start_lat'));
+    $stmt->bindValue('location_start_lng', $request->request->get('location_start_lng'));
+    $stmt->bindValue('location_end', $request->request->get('location_end'));
+    $stmt->bindValue('location_end_lat', $request->request->get('location_end_lat'));
+    $stmt->bindValue('location_end_lng', $request->request->get('location_end_lng'));
     $stmt->bindValue('confirmed', 0);
     $stmt->bindValue('hash', $randomHash);
     $result = $stmt->execute();
@@ -112,7 +139,7 @@ $app->post('/save', function () use ($app) {
     $message .= 'http://' . getenv('HOST') . '/confirm/' . $randomHash;
 
     $from = new Email(null, "test@example.com");
-    $to = new Email(null, $_POST['email']);
+    $to = new Email(null, $request->request->get('email'));
     $content = new Content("text/html", $message);
     $mail = new Mail($from, "Bevestig je aanmelding", $to, $content);
     $sg = new SendGrid(getenv('SENDGRID_API'));

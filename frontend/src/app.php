@@ -8,6 +8,7 @@ use Silex\Provider\HttpFragmentServiceProvider;
 use Silex\Provider\DoctrineServiceProvider;
 use Silex\Provider\VarDumperServiceProvider;
 use Silex\Provider\SwiftmailerServiceProvider;
+use Silex\Provider\ValidatorServiceProvider;
 
 $dotenv = new Dotenv\Dotenv(__DIR__ . '/..');
 $dotenv->load();
@@ -20,9 +21,9 @@ $app->register(new TwigServiceProvider());
 $app->register(new HttpFragmentServiceProvider());
 $app->register(new VarDumperServiceProvider());
 $app->register(new SwiftmailerServiceProvider());
+$app->register(new ValidatorServiceProvider());
 
 $app['twig'] = $app->extend('twig', function ($twig, $app) {
-    // add custom globals, filters, tags, ...
 
     return $twig;
 });
