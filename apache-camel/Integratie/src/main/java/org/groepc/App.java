@@ -111,8 +111,8 @@ public class App {
 			// TODO: send notification
 
 			// Status route
-			from("direct:process")
-				.setBody(constant("{\"status\": \"running\"}"));
+			from("direct:status")
+				.setBody(constant("{\"status\": \"running now!\"}"));
 
 
 
