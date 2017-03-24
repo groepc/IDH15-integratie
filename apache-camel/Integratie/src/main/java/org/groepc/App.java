@@ -73,6 +73,9 @@ public class App {
 					.consumes("application/json")
 					.produces("application/json")
 
+					.get("/status")
+						.to("direct:status")
+
 					.post("/notify").type(NotificationPojo.class)
 						.to("direct:process");
 
@@ -106,6 +109,11 @@ public class App {
 			// TODO: call buienradar API
 
 			// TODO: send notification
+
+			// Status route
+			from("direct:status")
+				.setBody(constant("{\"status\": \"running now!\"}"));
+
 
 
 
