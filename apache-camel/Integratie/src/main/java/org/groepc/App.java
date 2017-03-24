@@ -7,6 +7,7 @@ import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 import org.apache.camel.model.rest.RestBindingMode;
+import com.sendgrid.*;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -16,125 +17,142 @@ import java.util.Properties;
 
 public class App {
 
-	private Main main;
+    private Main main;
 
-	public static void main(String[] args) throws Exception {
-		App example = new App();
-		example.boot();
-	}
+    public static void main(String[] args) throws Exception {
+        App example = new App();
+        example.boot();
+    }
 
-	public void boot() throws Exception {
-		// create a Main instance
-		main = new Main();
-		// bind MyBean into the registry
-		main.bind("mySqlBean", new MySqlBean());
-		// add routes
-		main.addRouteBuilder(new MyRouteBuilder());
-		// add event listener
-		main.addMainListener(new Events());
-		// set the properties from a file
+    public void boot() throws Exception {
+        // create a Main instance
+        main = new Main();
+        // bind MyBean into the registry
+        main.bind("mySqlBean", new MySqlBean());
+        // add routes
+        main.addRouteBuilder(new MyRouteBuilder());
+        // add event listener
+        main.addMainListener(new Events());
+        // set the properties from a file
 //		main.setPropertyPlaceholderLocations("example.properties");
-		// run until you terminate the JVM
-		System.out.println("Starting Camel. Use ctrl + c to terminate the JVM.\n");
-		main.run();
-	}
+        // run until you terminate the JVM
+        System.out.println("Starting Camel. Use ctrl + c to terminate the JVM.\n");
+        main.run();
+    }
 
-	private static class MyRouteBuilder extends RouteBuilder {
-		private Properties prop = new Properties();
+    private static class MyRouteBuilder extends RouteBuilder {
 
-		@Override
-		public void configure() throws Exception {
+        private Properties prop = new Properties();
 
-			// set how to handle errors
-			errorHandler(deadLetterChannel("mock:error"));
+        @Override
+        public void configure() throws Exception {
 
-			// load a properties/configuration file
-			InputStream input = new FileInputStream("config.properties");
-			this.prop.load(input);
-			String host = prop.getProperty("host");
-			Integer port = Integer.parseInt(prop.getProperty("port"));
+            // set how to handle errors
+            errorHandler(deadLetterChannel("mock:error"));
 
-			/**
-			 * Setup REST configuration
-			 */
-			restConfiguration()
-					.component("jetty")
-					.host(host)
-					.port(port)
-					.bindingMode(RestBindingMode.json)
-					.dataFormatProperty("prettyPrint", "true");
+            // load a properties/configuration file
+            InputStream input = new FileInputStream("config.properties");
+            this.prop.load(input);
+            String host = prop.getProperty("host");
+            Integer port = Integer.parseInt(prop.getProperty("port"));
 
-			/**
-			 * Define our REST API routes, so we can call a Camel
-			 * route through an HTTP request
-			 */
-			rest("/api")
-					.description("Notification API")
-					.consumes("application/json")
-					.produces("application/json")
+            /**
+             * Setup REST configuration
+             */
+            restConfiguration()
+                    .component("jetty")
+                    .host(host)
+                    .port(port)
+                    .bindingMode(RestBindingMode.json)
+                    .dataFormatProperty("prettyPrint", "true");
 
-					.get("/status")
-						.to("direct:status")
+            /**
+             * Define our REST API routes, so we can call a Camel route through
+             * an HTTP request
+             */
+            rest("/api")
+                    .description("Notification API")
+                    .consumes("application/json")
+                    .produces("application/json")
+                    .get("/status")
+                    .to("direct:status")
+                    .post("/notify").type(NotificationPojo.class)
+                    .to("direct:process");
 
-					.post("/notify").type(NotificationPojo.class)
-						.to("direct:process");
+            /**
+             * Define our Camel specific routes
+             */
+            // kick-off processing of notification
+            from("direct:process")
+                    .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
+                    //.to("direct:callBuienradar")
+                    //.to("direct:sendMail")
+                    .process(new Processor() {
+                        public void process(Exchange exchange) throws Exception {
+                            NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
+                            System.out.println(notif.getEmail());
 
+                            Email from = new Email("camellover@gmail.com");
+                            String subject = "Is het fiets weer!";
+                            Email to = new Email(notif.getEmail());
+                            Content content = new Content("text/html", "Beste ...<br><br>Het is vandaag fietsweer!!! Pak je fiets en fiets er op los.<br><br>Met vriendelijke groet, <br>Is het fiets weer");
+                            Mail mail = new Mail(from, subject, to, content);
 
-			/**
-			 * Define our Camel specific routes
-			 */
-			// kick-off processing of notification
-			from("direct:process")
-					.to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
-					.to("direct:callBuienradar")
-					.to("direct:sendMail")
+                            System.out.println(exchange.getProperty("sendgridApi"));
+                            SendGrid sg = new SendGrid(prop.getProperty("sendgridApi"));
+                            Request request = new Request();
+                            try {
+                                request.method = Method.POST;
+                                request.endpoint = "mail/send";
+                                request.body = mail.build();
+                                Response response = sg.api(request);
+                                System.out.println(response.statusCode);
+                                System.out.println(response.body);
+                                System.out.println(response.headers);
+                            } catch (IOException ex) {
+                                System.out.println(ex.getMessage());
+                               // throw ex;
+                            }
+                            System.out.println(notif.getEmail());
 
-					.process(new Processor() {
-						public void process(Exchange exchange) throws Exception {
-							NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
-							System.out.println(notif.getEmail());
+                            // do something with the payload and/or exchange here
+                            exchange.getIn().setBody("Changed body");
+                        }
+                    })
+                    .process(new Processor() {
+                        public void process(Exchange exchange) throws Exception {
+                            String myString = exchange.getIn().getBody(String.class);
+                            System.out.println(myString);
+                        }
+                    })
+                    .setBody(constant("{\"resp\": \"hello,summit\"}"));
 
-							// do something with the payload and/or exchange here
-							exchange.getIn().setBody("Changed body");
-						}
-					})
-					.process(new Processor() {
-						public void process(Exchange exchange) throws Exception {
-							String myString = exchange.getIn().getBody(String.class);
-							System.out.println(myString);
-						}
-					})
-					.setBody(constant("{\"resp\": \"hello,summit\"}"));
+            // TODO: call buienradar API
+            // TODO: send notification
+            // Status route
+            from("direct:status")
+                    .setBody(constant("{\"status\": \"running now!\"}"));
 
-			// TODO: call buienradar API
-
-			// TODO: send notification
-
-			// Status route
-			from("direct:status")
-				.setBody(constant("{\"status\": \"running now!\"}"));
-
-
-
+            /*
+            from("direct:sendMail")
+                    .setHeader("subject", simple("Duimen omhoog!!"))
+                    .to("smtp://apikey@smtp.sendgrid.net:587?password=" +  + "&to=" + toMail + "&from=camellover@gmail.com")
+                    .to("stream:out");
+*/
 
 //			from("direct:hello")
 //					.setBody()
 //					.simple("Hello World Camel fired at ${header.firedTime}")
 //					.to("stream:out");
-
 //			from("scheduler://defaultTimer?delay=5&timeUnit=SECONDS").to("bean:mySqlBean?method=requestDb");
-
-
 //			from("timer://myTimer?period=2000")
 //					.setBody()
 //					.simple("Hello World Camel fired at ${header.firedTime}")
 //					.to("stream:out");
-
 //			from("timer://myTimer?period=5000")
 //					.setHeader("subject", simple("Duimen omhoog!!"))
 //					.to("smtp://apikey@smtp.sendgrid.net:587?password=" + sendgridApi + "&to=" + toMail + "&from=camellover@gmail.com")
 //					.to("stream:out");
-
 //			String sendgridApi = prop.getProperty("sendgrid_api");
 //			String toMail = prop.getProperty("to_mail");
 //
@@ -143,7 +161,6 @@ public class App {
 //					.setHeader(Exchange.FILE_NAME, constant("message.html"))
 //					//.to("stream:out");
 //					.to("file:target");
-
 //			from("timer:foo?delay=1000")
 //					.process(new Processor() {
 //						public void process(Exchange exchange) throws Exception {
@@ -151,46 +168,47 @@ public class App {
 //						}
 //					})
 //					.bean("foo");
-		}
-	}
+        }
+    }
 
-	public static class MySqlBean {
-		public void callMe() {
-			System.out.println("MyBean.callMe method has been called");
-		}
+    public static class MySqlBean {
 
-		public void requestDb() {
-			System.out.println("MySqlBean.requestDB method has been called");
-		}
-	}
+        public void callMe() {
+            System.out.println("MyBean.callMe method has been called");
+        }
 
-	public static class Events extends MainListenerSupport {
+        public void requestDb() {
+            System.out.println("MySqlBean.requestDB method has been called");
+        }
+    }
 
-		private Properties prop = new Properties();
+    public static class Events extends MainListenerSupport {
 
-		@Override
-		public void afterStart(MainSupport main) {
+        private Properties prop = new Properties();
 
-			// load a properties/configuration file
-			InputStream input = null;
-			try {
-				input = new FileInputStream("config.properties");
-				this.prop.load(input);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+        @Override
+        public void afterStart(MainSupport main) {
 
-			String host = prop.getProperty("host");
-			Integer port = Integer.parseInt(prop.getProperty("port"));
+            // load a properties/configuration file
+            InputStream input = null;
+            try {
+                input = new FileInputStream("config.properties");
+                this.prop.load(input);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-			System.out.println("MainExample with Camel is now started on http://" + host + ":" + port);
-		}
+            String host = prop.getProperty("host");
+            Integer port = Integer.parseInt(prop.getProperty("port"));
 
-		@Override
-		public void beforeStop(MainSupport main) {
-			System.out.println("MainExample with Camel is now being stopped!");
-		}
-	}
+            System.out.println("MainExample with Camel is now started on http://" + host + ":" + port);
+        }
+
+        @Override
+        public void beforeStop(MainSupport main) {
+            System.out.println("MainExample with Camel is now being stopped!");
+        }
+    }
 }
