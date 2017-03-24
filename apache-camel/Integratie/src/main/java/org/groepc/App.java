@@ -87,7 +87,7 @@ public class App {
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
                     //.to("direct:callBuienradar")
                     //.to("direct:sendMail")
-                    .setHeader("sendgridApi", prop.getProperty("sendgridApi"))
+                    .setHeader("sendgridApi", (string) prop.getProperty("sendgridApi"))
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
