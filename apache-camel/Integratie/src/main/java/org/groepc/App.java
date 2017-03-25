@@ -87,7 +87,7 @@ public class App {
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
                     //.to("direct:callBuienradar")
                     //.to("direct:sendMail")
-                    .setHeader("sendgridApi", (string) prop.getProperty("sendgridApi"))
+                    .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
                     .process(new Processor() {
                         public void process(Exchange exchange) throws Exception {
                             NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
@@ -99,8 +99,8 @@ public class App {
                             Content content = new Content("text/html", "Beste ...<br><br>Het is vandaag fietsweer!!! Pak je fiets en fiets er op los.<br><br>Met vriendelijke groet, <br>Is het fiets weer");
                             Mail mail = new Mail(from, subject, to, content);
 
-                            System.out.println(exchange.getProperty("sendgridApi"));
-                            SendGrid sg = new SendGrid(exchange.getProperty("sendgridApi"));
+                            System.out.println(exchange.getIn().getHeader("sendgridApi"));
+                            SendGrid sg = new SendGrid( (String) exchange.getIn().getHeader("sendgridApi"));
                             Request request = new Request();
                             try {
                                 request.method = Method.POST;
