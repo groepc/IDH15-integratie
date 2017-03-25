@@ -11,6 +11,9 @@ public class GenerateMessage implements Processor {
 
         String message_email = "Ls,<br><br>";
 
+        message_email += "Je wilt gaan fietsen van " + notification.getLocation_start()
+                + " naar " + notification.getLocation_end() +  ". Hieronder je fiets advies:<br><br>";
+
         if (notification.getRainIndex() == 0) {
             message_email += "Je kunt vandaag droog fietsen!";
         } else if (notification.getRainIndex() <= 50) {
