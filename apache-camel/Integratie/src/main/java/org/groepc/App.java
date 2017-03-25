@@ -89,8 +89,8 @@ public class App {
                     .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
                     .to("direct:callBuienradar")
                     .to("direct:processData")
-                    .to("direct:generateMessage")
-                    .to("direct:sendMail");
+                    .to("direct:generateMessage");
+                    //.to("direct:sendMail");
 
             from("direct:callBuienradar")
                     .process(new CallBuienradar());

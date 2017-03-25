@@ -13,15 +13,21 @@ public class ProcessData implements Processor {
 
         int counter = 0;
         int value = 0;
+        int rainIndex = 0;
 
         for (Map.Entry<String, String> entry : map.entrySet()) {
-
             value += Integer.parseInt(entry.getValue());
             counter++;
-
         }
 
-        int rainIndex = value / counter;
+        System.out.println(value);
+        System.out.println(counter);
+
+        if (value != 0) {
+            rainIndex = Math.round(value / counter);
+        }
+
+        System.out.println(rainIndex);
 
         notification.setRainIndex(rainIndex);
 
