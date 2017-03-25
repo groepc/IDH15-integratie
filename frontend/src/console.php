@@ -32,4 +32,26 @@ $console
             }
         });
 
+$console
+    ->register('trigger')
+//    ->setDefinition(array(
+//         new InputOption('hash', null, InputOption::VALUE_NONE, 'Hash to trigger'),
+//    ))
+    ->addArgument('hash', InputArgument::REQUIRED, 'Notification to trigger (by hash)')
+    ->setDescription('Triggers camel to send e-mails based on the actuel weather')
+    ->setCode(function (InputInterface $input, OutputInterface $output) use ($app) {
+
+        $hash = $input->getArgument('hash');
+        $notification = $app['db']->fetchAssoc('SELECT * FROM notifications WHERE hash = ?', array($hash));
+
+        if (!$notification) {
+            return new Response('No valid notification found.', 500);
+        }
+
+        $url = 'http://' . getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/notify';
+        $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
+        $response = Requests::post($url, $headers, json_encode($notification));
+        print_r($response);
+    });
+
 return $console;

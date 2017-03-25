@@ -8,11 +8,14 @@ import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 import org.apache.camel.model.rest.RestBindingMode;
 import com.sendgrid.*;
+import org.apache.camel.processor.aggregate.AggregationStrategy;
 
+import javax.management.Notification;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.util.Properties;
 
 public class App {
@@ -27,14 +30,12 @@ public class App {
     public void boot() throws Exception {
         // create a Main instance
         main = new Main();
-        // bind MyBean into the registry
-        main.bind("mySqlBean", new MySqlBean());
         // add routes
         main.addRouteBuilder(new MyRouteBuilder());
         // add event listener
         main.addMainListener(new Events());
         // set the properties from a file
-//		main.setPropertyPlaceholderLocations("example.properties");
+        // main.setPropertyPlaceholderLocations("example.properties");
         // run until you terminate the JVM
         System.out.println("Starting Camel. Use ctrl + c to terminate the JVM.\n");
         main.run();
@@ -74,10 +75,12 @@ public class App {
                     .description("Notification API")
                     .consumes("application/json")
                     .produces("application/json")
+
                     .get("/status")
-                    .to("direct:status")
+                        .to("direct:status")
+
                     .post("/notify").type(NotificationPojo.class)
-                    .to("direct:process");
+                        .to("direct:process");
 
             /**
              * Define our Camel specific routes
@@ -85,101 +88,26 @@ public class App {
             // kick-off processing of notification
             from("direct:process")
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
-                    //.to("direct:callBuienradar")
-                    //.to("direct:sendMail")
                     .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
-                    .process(new Processor() {
-                        public void process(Exchange exchange) throws Exception {
-                            NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
-                            System.out.println(notif.getEmail());
 
-                            Email from = new Email("camellover@gmail.com");
-                            String subject = "Is het fiets weer!";
-                            Email to = new Email(notif.getEmail());
-                            Content content = new Content("text/html", "Beste ...<br><br>Het is vandaag fietsweer!!! Pak je fiets en fiets er op los.<br><br>Met vriendelijke groet, <br>Is het fiets weer");
-                            Mail mail = new Mail(from, subject, to, content);
+                    .to("direct:callBuienradar");
+                    // .to("direct:processData")
+                    // .to("direct:generateMessage")
+                    // .to("direct:sendMail");
 
-                            System.out.println(exchange.getIn().getHeader("sendgridApi"));
-                            SendGrid sg = new SendGrid( (String) exchange.getIn().getHeader("sendgridApi"));
-                            Request request = new Request();
-                            try {
-                                request.method = Method.POST;
-                                request.endpoint = "mail/send";
-                                request.body = mail.build();
-                                Response response = sg.api(request);
-                                System.out.println(response.statusCode);
-                                System.out.println(response.body);
-                                System.out.println(response.headers);
-                            } catch (IOException ex) {
-                                System.out.println(ex.getMessage());
-                               // throw ex;
-                            }
-                            System.out.println(notif.getEmail());
-
-                            // do something with the payload and/or exchange here
-                            exchange.getIn().setBody("Changed body");
-                        }
-                    })
-                    .process(new Processor() {
-                        public void process(Exchange exchange) throws Exception {
-                            String myString = exchange.getIn().getBody(String.class);
-                            System.out.println(myString);
-                        }
-                    })
-                    .setBody(constant("{\"resp\": \"hello,summit\"}"));
 
             // TODO: call buienradar API
+            from("direct:callBuienradar")
+                    .process(new CallBuienradar());
+
             // TODO: send notification
+            from("direct:sendMail")
+                    .process(new SendMail());
+
             // Status route
             from("direct:status")
                     .setBody(constant("{\"status\": \"running now!\"}"));
 
-            /*
-            from("direct:sendMail")
-                    .setHeader("subject", simple("Duimen omhoog!!"))
-                    .to("smtp://apikey@smtp.sendgrid.net:587?password=" +  + "&to=" + toMail + "&from=camellover@gmail.com")
-                    .to("stream:out");
-*/
-
-//			from("direct:hello")
-//					.setBody()
-//					.simple("Hello World Camel fired at ${header.firedTime}")
-//					.to("stream:out");
-//			from("scheduler://defaultTimer?delay=5&timeUnit=SECONDS").to("bean:mySqlBean?method=requestDb");
-//			from("timer://myTimer?period=2000")
-//					.setBody()
-//					.simple("Hello World Camel fired at ${header.firedTime}")
-//					.to("stream:out");
-//			from("timer://myTimer?period=5000")
-//					.setHeader("subject", simple("Duimen omhoog!!"))
-//					.to("smtp://apikey@smtp.sendgrid.net:587?password=" + sendgridApi + "&to=" + toMail + "&from=camellover@gmail.com")
-//					.to("stream:out");
-//			String sendgridApi = prop.getProperty("sendgrid_api");
-//			String toMail = prop.getProperty("to_mail");
-//
-//			from("timer://foo?fixedRate=true&delay=0&period=10000")
-//					.to("https://randomuser.me/api/")
-//					.setHeader(Exchange.FILE_NAME, constant("message.html"))
-//					//.to("stream:out");
-//					.to("file:target");
-//			from("timer:foo?delay=1000")
-//					.process(new Processor() {
-//						public void process(Exchange exchange) throws Exception {
-//							System.out.println("Invoked timer at " + new Date());
-//						}
-//					})
-//					.bean("foo");
-        }
-    }
-
-    public static class MySqlBean {
-
-        public void callMe() {
-            System.out.println("MyBean.callMe method has been called");
-        }
-
-        public void requestDb() {
-            System.out.println("MySqlBean.requestDB method has been called");
         }
     }
 

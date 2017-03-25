@@ -1,5 +1,7 @@
 package org.groepc;
 
+import java.util.Map;
+
 public class NotificationPojo {
 	private String id;
 	private String email;
@@ -12,6 +14,7 @@ public class NotificationPojo {
 	private String location_end_lng;
 	private String confirmed;
 	private String hash;
+	private Map<String, String> weather;
 
 	public String getId() {
 		return id;
@@ -99,5 +102,13 @@ public class NotificationPojo {
 
 	public void setHash(String hash) {
 		this.hash = hash;
+	}
+
+	public Map<String, String> getWeather() {
+		return weather;
+	}
+
+	public void setWeather(Map<String, String> weather) {
+		this.weather = weather;
 	}
 }
