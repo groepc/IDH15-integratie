@@ -24,7 +24,7 @@ public class ProcessData implements Processor {
         System.out.println(counter);
 
         if (value != 0) {
-            rainIndex = Math.round(value / counter);
+            rainIndex = Math.floor(value / counter);
         }
 
         System.out.println(rainIndex);
