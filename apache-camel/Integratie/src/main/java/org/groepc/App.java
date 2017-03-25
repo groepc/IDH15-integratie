@@ -90,7 +90,7 @@ public class App {
                     .to("direct:callBuienradar")
                     .to("direct:processData")
                     .to("direct:generateMessage");
-                    //.to("direct:sendMail");
+                    .to("direct:sendMail");
 
             from("direct:callBuienradar")
                     .process(new CallBuienradar());
