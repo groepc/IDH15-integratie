@@ -91,7 +91,7 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
     var_dump($response->status_code);
     var_dump($response->headers['content-type']);
 
-//    return $app['twig']->render('confirmed.html.twig', array('notification' => $notification));
+    exit;
 });
 
 /**
