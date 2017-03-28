@@ -106,7 +106,7 @@ public class App {
 
             // Status route
             from("direct:status")
-                    .setBody(constant("{\"status\": \"running now!\"}"));
+                    .setBody(constant("{\"status\": \"running\"}"));
 
         }
     }

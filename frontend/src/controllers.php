@@ -95,6 +95,17 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
 });
 
 /**
+ * Call status handler on Apache Camel
+ */
+$app->get('/status', function (Request $request) use ($app) {
+    $url = 'http://' . getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/status';
+    $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
+    $response = Requests::post($url, $headers, json_encode($notification));
+
+    return $app->json($response);
+});
+
+/**
  * Save new entry to DB. Send confirmation mail to mail address
  */
 $app->post('/save', function (Request $request) use ($app) {
