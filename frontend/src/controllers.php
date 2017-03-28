@@ -100,7 +100,7 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
 $app->get('/status', function (Request $request) use ($app) {
     $url = 'http://' . getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/status';
     $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
-    $response = Requests::post($url, $headers, json_encode($notification));
+    $response = Requests::get($url, $headers);
 
     return $app->json($response);
 });
