@@ -75,12 +75,10 @@ public class App {
                     .description("Notification API")
                     .consumes("application/json")
                     .produces("application/json")
-
                     .get("/status")
-                        .to("direct:status")
-
+                    .to("direct:status")
                     .post("/notify").type(NotificationPojo.class)
-                        .to("direct:process");
+                    .to("direct:process");
 
             /**
              * Define our Camel specific routes
@@ -89,18 +87,19 @@ public class App {
             from("direct:process")
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
                     .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
+                    .to("direct:callBuienradar")
+                    .to("direct:processData")
+                    .to("direct:generateMessage")
+                    .to("direct:sendMail");
 
-                    .to("direct:callBuienradar");
-                    // .to("direct:processData")
-                    // .to("direct:generateMessage")
-                    // .to("direct:sendMail");
-
-
-            // TODO: call buienradar API
             from("direct:callBuienradar")
                     .process(new CallBuienradar());
 
-            // TODO: send notification
+            from("direct:processData")
+                    .process(new ProcessData());
+
+            from("direct:generateMessage")
+                    .process(new GenerateMessage());
             from("direct:sendMail")
                     .process(new SendMail());
 
