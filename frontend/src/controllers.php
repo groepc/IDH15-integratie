@@ -102,7 +102,7 @@ $app->get('/status', function (Request $request) use ($app) {
     $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
     $response = Requests::get($url, $headers);
 
-    return $app->json($response);
+    return $app->json($response->body);
 });
 
 /**
