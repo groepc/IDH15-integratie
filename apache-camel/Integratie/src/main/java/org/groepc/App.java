@@ -1,21 +1,17 @@
 package org.groepc;
 
-import org.apache.camel.Exchange;
-import org.apache.camel.Main;
-import org.apache.camel.Processor;
+import org.apache.camel.CamelContext;
 import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.properties.PropertiesComponent;
+import org.apache.camel.main.Main;
 import org.apache.camel.main.MainListenerSupport;
 import org.apache.camel.main.MainSupport;
 import org.apache.camel.model.rest.RestBindingMode;
-import com.sendgrid.*;
-import org.apache.camel.processor.aggregate.AggregationStrategy;
 
-import javax.management.Notification;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.util.Properties;
 
 public class App {
@@ -28,16 +24,19 @@ public class App {
     }
 
     public void boot() throws Exception {
+
         // create a Main instance
         main = new Main();
+
         // add routes
         main.addRouteBuilder(new MyRouteBuilder());
+
         // add event listener
         main.addMainListener(new Events());
-        // set the properties from a file
-        // main.setPropertyPlaceholderLocations("example.properties");
+
         // run until you terminate the JVM
         System.out.println("Starting Camel. Use ctrl + c to terminate the JVM.\n");
+
         main.run();
     }
 
@@ -87,6 +86,7 @@ public class App {
             from("direct:process")
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
                     .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
+
                     .to("direct:callBuienradar")
                     .to("direct:processData")
                     .to("direct:generateMessage")
