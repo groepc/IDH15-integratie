@@ -71,7 +71,7 @@ $app->get('/confirmed/{hash}', function ($hash) use ($app) {
 });
 
 $app->get('/unsubscribe/{hash}', function ($hash) use ($app) {
-    $notification = $app['db']->fetchAssoc('UPDATE notifications SET confirmed ="0" WHERE hash = ?', array($hash));
+    $notification = $app['db']->executeUpdate('UPDATE notifications SET confirmed="0" WHERE hash = ?', array($hash));
 
     if (!$notification) {
         return new Response('Invalid hash.', 500);
