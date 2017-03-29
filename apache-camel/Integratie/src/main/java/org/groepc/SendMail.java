@@ -14,7 +14,7 @@ public class SendMail implements Processor {
         System.out.println(notif.getEmail());
 
         Email from = new Email("camellover@gmail.com");
-        String subject = "Is het fiets weer!";
+        String subject = "Is het fiets weer?!";
         Email to = new Email(notif.getEmail());
         Content content = new Content("text/html", notif.getMessage_email());
         Mail mail = new Mail(from, subject, to, content);

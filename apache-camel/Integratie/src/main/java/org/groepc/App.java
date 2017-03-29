@@ -88,6 +88,7 @@ public class App {
                     .to("log:org.groepc.app?level=DEBUG&showAll=true&multiline=true")
                     .setHeader("sendgridApi", simple(prop.getProperty("sendgrid_api"), String.class))
                     .setHeader("googleApiKey", simple(prop.getProperty("google_api"), String.class))
+                    .setHeader("websiteUrl", simple(prop.getProperty("website_url"), String.class))
                     .to("direct:callBuienradar")
                     //.to("direct:callGoogleMaps")
                     .to("direct:processData")

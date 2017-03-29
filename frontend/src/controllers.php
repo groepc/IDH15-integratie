@@ -70,6 +70,16 @@ $app->get('/confirmed/{hash}', function ($hash) use ($app) {
     return $app['twig']->render('confirmed.html.twig', array('notification' => $notification));
 });
 
+$app->get('/unsubscribe/{hash}', function ($hash) use ($app) {
+    $notification = $app['db']->fetchAssoc('UPDATE notifications SET confirmed ="0" WHERE hash = ?', array($hash));
+
+    if (!$notification) {
+        return new Response('Invalid hash.', 500);
+    }
+
+    return $app['twig']->render('unsubscribe.html.twig', array('notification' => $notification));
+});
+
 /**
  * Trigger notification for ID
  */
