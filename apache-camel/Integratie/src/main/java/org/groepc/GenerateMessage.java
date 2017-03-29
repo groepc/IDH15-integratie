@@ -29,7 +29,7 @@ public class GenerateMessage implements Processor {
         }
 
         message_email += "<br><br>Met vriendelijke groet, <br>Is het fiets weer<br><br>";
-        message_email += "<a href=\"" + (String) exchange.getIn().getHeader("sendgridApi") + "\\unsubscribe\\"+ notification.getHash() +"\">Afmelden voor deze dagelijkse mail.</a>";
+        message_email += "<a href=\"" + (String) exchange.getIn().getHeader("websiteUrl") + "\\unsubscribe\\"+ notification.getHash() +"\">Afmelden voor deze dagelijkse mail.</a>";
 
         notification.setMessage_email(message_email);
 

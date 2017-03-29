@@ -16,11 +16,14 @@ public class SendMail implements Processor {
         Email from = new Email("camellover@gmail.com");
         String subject = "Is het fiets weer?!";
         Email to = new Email(notif.getEmail());
-        Content content = new Content("text/html", notif.getMessage_email());
+        Content content = new Content();
+        content.setType("text/html");
+        content.setValue(notif.getMessage_email());
         Mail mail = new Mail(from, subject, to, content);
-
+        
         System.out.println(exchange.getIn().getHeader("sendgridApi"));
         SendGrid sg = new SendGrid((String) exchange.getIn().getHeader("sendgridApi"));
+   
         Request request = new Request();
         try {
             request.method = Method.POST;
