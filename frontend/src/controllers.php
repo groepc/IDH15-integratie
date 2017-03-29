@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-//Request::setTrustedProxies(array('127.0.0.1'));
-
 /**
  * Homepage
  */
@@ -29,7 +27,7 @@ $app->get('/please-confirm', function () use ($app) {
 });
 
 /**
- * Entry saved to DB. Show please-confirm page.
+ * Entry not saved to DB. Show error page.
  */
 $app->get('/wrong-input', function () use ($app) {
     return $app['twig']->render('wrong-input.html.twig', array());

@@ -1,6 +1,7 @@
 package org.groepc;
 
 import org.apache.camel.CamelContext;
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.properties.PropertiesComponent;
 import org.apache.camel.main.Main;
@@ -105,7 +106,9 @@ public class App {
 
             // Status route
             from("direct:status")
-                    .setBody(constant("{\"status\": \"running\"}"));
+                    .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(200))
+                    .setHeader(Exchange.CONTENT_TYPE, constant("application/json"))
+                    .setBody().constant("{'status': 'running'}");
 
         }
     }
