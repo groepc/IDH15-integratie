@@ -24,7 +24,6 @@ $app->register(new SwiftmailerServiceProvider());
 $app->register(new ValidatorServiceProvider());
 
 $app['twig'] = $app->extend('twig', function ($twig, $app) {
-
     return $twig;
 });
 

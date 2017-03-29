@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Validator\Constraints as Assert;
 
-//Request::setTrustedProxies(array('127.0.0.1'));
-
 /**
  * Homepage
  */
@@ -29,7 +27,7 @@ $app->get('/please-confirm', function () use ($app) {
 });
 
 /**
- * Entry saved to DB. Show please-confirm page.
+ * Entry not saved to DB. Show error page.
  */
 $app->get('/wrong-input', function () use ($app) {
     return $app['twig']->render('wrong-input.html.twig', array());
@@ -92,6 +90,17 @@ $app->get('/trigger/{hash}', function ($hash) use ($app) {
     var_dump($response->headers['content-type']);
 
     exit;
+});
+
+/**
+ * Call status handler on Apache Camel
+ */
+$app->get('/status', function (Request $request) use ($app) {
+    $url = 'http://' . getenv('CAMEL_HOST') . ':' . getenv('CAMEL_PORT') . '/api/status';
+    $headers = array('Content-Type' => 'application/json', 'Accept' => 'application/json');
+    $response = Requests::get($url, $headers);
+
+    return $app->json($response->body);
 });
 
 /**

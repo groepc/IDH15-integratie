@@ -2,12 +2,10 @@ package org.groepc;
 
 import org.apache.camel.Exchange;
 import org.apache.camel.Processor;
+import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.*;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
