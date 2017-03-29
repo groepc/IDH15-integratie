@@ -28,8 +28,10 @@ public class GenerateMessage implements Processor {
             message_email += "Pak zeker niet je fiets, het is niet te doen! ";
         }
 
+        String href = (String) exchange.getIn().getHeader("websiteUrl") + "\\unsubscribe\\"+ notification.getHash();
         message_email += "<br><br>Met vriendelijke groet, <br>Is het fiets weer<br><br>";
-        message_email += "<a href=\"" + (String) exchange.getIn().getHeader("websiteUrl") + "\\unsubscribe\\"+ notification.getHash() +"\">Afmelden voor deze dagelijkse mail.</a>";
+        
+        message_email += "<a href=\""+ href +"\">Afmelden voor deze dagelijkse mail.</a><br>" + href;
 
         notification.setMessage_email(message_email);
 
