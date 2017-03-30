@@ -155,7 +155,7 @@ $app->post('/save', function (Request $request) use ($app) {
     $result = $stmt->execute();
 
     $message = 'Klik op onderstaande link om aanmelding te bevestigen.<br>';
-    $message .= 'http://' . getenv('HOST') . '/confirm/' . $randomHash;
+    $message .= getenv('HOST') . '/confirm/' . $randomHash;
 
     $from = new Email(null, "test@example.com");
     $to = new Email(null, $request->request->get('email'));
