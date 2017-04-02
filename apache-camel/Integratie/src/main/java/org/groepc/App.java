@@ -90,7 +90,7 @@ public class App {
                     .setHeader("googleApiKey", simple(prop.getProperty("google_api"), String.class))
                     .setHeader("websiteUrl", simple(prop.getProperty("website_url"), String.class))
                     .to("direct:callBuienradar")
-                    //.to("direct:callGoogleMaps")
+                    .to("direct:callGoogleMaps")
                     .to("direct:processData")
                     .to("direct:generateMessage")
                     .to("direct:sendMail");

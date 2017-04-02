@@ -10,6 +10,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 import com.google.gson.*;
+import com.google.maps.DirectionsApi;
+import com.google.maps.DirectionsApi.RouteRestriction;
+import com.google.maps.GeoApiContext;
+import com.google.maps.model.DirectionsResult;
+import com.google.maps.model.TravelMode;
+import com.google.maps.model.Unit;
 
 public class CallGoogleMaps implements Processor {
 
@@ -22,32 +28,19 @@ public class CallGoogleMaps implements Processor {
         String endLatitude = notification.getLocation_end_lat();
         String endLongitude = notification.getLocation_end_lng();
 
-        HttpClient client = new HttpClient();
+        GeoApiContext context = new GeoApiContext().setApiKey((String) exchange.getIn().getHeader("googleApiKey"));
 
-        String uri = "https://maps.googleapis.com/maps/api/directions/json?origin=" + startLatitude + "," + startLongitude + "&destination=" + endLatitude + "," + endLongitude + "&key=" + (String) exchange.getIn().getHeader("googleApiKey") + "&mode=bicycling";
+        DirectionsResult results = DirectionsApi.newRequest(context)
+                .mode(TravelMode.BICYCLING)
+                .units(Unit.METRIC)
+                .region("nl")
+                .language("nl")
+                .origin(startLatitude + "," + startLongitude)
+                .destination(endLatitude + "," + endLongitude).await();
 
-        GetMethod method = new GetMethod(uri);
-        method.setRequestHeader("Content-type", "text/xml; charset=ISO-8859-1");
-        System.out.println("We komen hier");
-        try {
-            int statusCode = client.executeMethod(method);
-            Gson g = new Gson();
-            JsonObject jsonObject = new JsonParser().parse(method.getResponseBodyAsString()).getAsJsonObject();
+        notification.setDistance(results.routes[0].legs[0].distance.humanReadable);
+        notification.setTimeToCycle(results.routes[0].legs[0].duration.humanReadable);
 
-            System.out.println(jsonObject.getAsJsonArray("routes").getAsJsonObject().getAsJsonArray("legs").getAsJsonObject().getAsJsonObject("distance").get("text")); //John
-            
-            //System.out.println(jsonObject.get("routes").getAsString()); //John
-
-            //release connection
-            method.releaseConnection();
-        } catch (IOException e) {
-            System.out.println(e.getMessage());
-            e.printStackTrace();
-        }
-
-        // add buienradar data to model
-        //notification.setWeather(weatherMap);
-        // set new message
-        //	exchange.getIn().setBody(notification);
+        exchange.getIn().setBody(notification);
     }
 }

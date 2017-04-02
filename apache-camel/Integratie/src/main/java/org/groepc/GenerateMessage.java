@@ -12,7 +12,7 @@ public class GenerateMessage implements Processor {
         String message_email = "Ls,<br><br>";
 
         message_email += "Je wilt gaan fietsen van " + notification.getLocation_start()
-                + " naar " + notification.getLocation_end() +  ". Hieronder je fiets advies:<br><br>";
+                + " naar " + notification.getLocation_end() + ". Hieronder je fiets advies:<br><br>";
 
         if (notification.getRainIndex() == 0) {
             message_email += "Je kunt vandaag droog fietsen!";
@@ -28,10 +28,16 @@ public class GenerateMessage implements Processor {
             message_email += "Pak zeker niet je fiets, het is niet te doen! ";
         }
 
-        String href = (String) exchange.getIn().getHeader("websiteUrl") + "/unsubscribe/"+ notification.getHash();
+        message_email += "<br><br>Fiets gegevens:<br>";
+        message_email += "Van: " + notification.getLocation_start() + "<br>";
+        message_email += "Naar: " + notification.getLocation_end() + "<br>";
+        message_email += "Afstand: " + notification.getDistance() + "<br>";
+        message_email += "Tijd: " + notification.getTimeToCycle() + "<br>";
+
+        String href = (String) exchange.getIn().getHeader("websiteUrl") + "/unsubscribe/" + notification.getHash();
         message_email += "<br><br>Met vriendelijke groet, <br>Is het fiets weer<br><br>";
-        
-        message_email += "<a href=\""+ href +"\">Afmelden voor deze dagelijkse mail.</a><br>" + href;
+
+        message_email += "<a href=\"" + href + "\">Afmelden voor deze dagelijkse mail.</a><br>";
 
         notification.setMessage_email(message_email);
 

@@ -18,6 +18,8 @@ public class NotificationPojo {
     private Map<String, String> weather;
     private Integer rainIndex;
     private String message_email;
+    private String distance;
+    private String timeToCycle;
 
     public String getId() {
         return id;
@@ -129,5 +131,21 @@ public class NotificationPojo {
 
     public void setMessage_email(String message_email) {
         this.message_email = message_email;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
+    }
+
+    public String getTimeToCycle() {
+        return timeToCycle;
+    }
+
+    public void setTimeToCycle(String timeToCycle) {
+        this.timeToCycle = timeToCycle;
     }
 }
