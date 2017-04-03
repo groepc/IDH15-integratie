@@ -13,7 +13,7 @@ public class SendMail implements Processor {
         NotificationPojo notif = exchange.getIn().getBody(NotificationPojo.class);
         System.out.println(notif.getEmail());
 
-        Email from = new Email("camellover@gmail.com");
+        Email from = new Email("noreply@fietsofauto.nl");
         String subject = "Is het fiets weer?!";
         Email to = new Email(notif.getEmail());
         Content content = new Content();
