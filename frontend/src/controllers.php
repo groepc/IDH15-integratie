@@ -157,7 +157,7 @@ $app->post('/save', function (Request $request) use ($app) {
     $message = 'Klik op onderstaande link om aanmelding te bevestigen.<br>';
     $message .= getenv('HOST') . '/confirm/' . $randomHash;
 
-    $from = new Email(null, "test@example.com");
+    $from = new Email("Fiets of Auto", "no-reply@fietsofauto.nl");
     $to = new Email(null, $request->request->get('email'));
     $content = new Content("text/html", $message);
     $mail = new Mail($from, "Bevestig je aanmelding", $to, $content);

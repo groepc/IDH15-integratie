@@ -76,9 +76,9 @@ public class App {
                     .consumes("application/json")
                     .produces("application/json")
                     .get("/status")
-                    .to("direct:status")
+                        .to("direct:status")
                     .post("/notify").type(NotificationPojo.class)
-                    .to("direct:process");
+                        .to("direct:process");
 
             /**
              * Define our Camel specific routes
@@ -106,6 +106,7 @@ public class App {
 
             from("direct:generateMessage")
                     .process(new GenerateMessage());
+
             from("direct:sendMail")
                     .process(new SendMail());
 
