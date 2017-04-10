@@ -9,7 +9,7 @@ public class GenerateMessage implements Processor {
     public void process(Exchange exchange) throws Exception {
         NotificationPojo notification = exchange.getIn().getBody(NotificationPojo.class);
 
-        String message_email = "Ls,<br><br>";
+        String message_email = "Hallo,<br><br>";
 
         message_email += "Je wilt gaan fietsen van " + notification.getLocation_start()
                 + " naar " + notification.getLocation_end() + ". Hieronder je fiets advies:<br><br>";
