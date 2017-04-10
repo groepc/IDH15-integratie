@@ -154,8 +154,13 @@ $app->post('/save', function (Request $request) use ($app) {
     $stmt->bindValue('hash', $randomHash);
     $result = $stmt->execute();
 
-    $message = 'Klik op onderstaande link om aanmelding te bevestigen.<br>';
-    $message .= getenv('HOST') . '/confirm/' . $randomHash;
+    $url = getenv('HOST') . '/confirm/' . $randomHash;
+
+    $message = 'Hallo,<br><br>';
+    $message .= '<a href="'. $url .'">Klik hier om je aanmelding te bevestigen</a>.<br><br>';
+    $message .= 'Werkt bovenstaande link niet? Kopieer dan onderstaande link en open hem in je browser:<br>';
+    $message .= $url . '<br><br>';
+    $message .= 'Met vriendelijke groet,<br><br><br>Fietsofauto.nl';
 
     $from = new Email("Fiets of Auto", "no-reply@fietsofauto.nl");
     $to = new Email(null, $request->request->get('email'));

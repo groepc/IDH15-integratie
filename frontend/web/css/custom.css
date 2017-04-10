@@ -1,21 +1,37 @@
+section h3.section-subheading {
+    color: #e0e0e0;
+    margin-bottom: 25px;
+}
+
 section#contact {
-	min-height: 100vh;
-	min-width: 100vw;
+    min-height: 100vh;
+    min-width: 100vw;
 }
 
- ::-webkit-input-placeholder {
-	color: #aaa !important;
+.form-group label {
+    color: #e0e0e0;
 }
 
- ::-moz-placeholder {
-	color: #aaa !important;
-	opacity: 1;
+section#contact ::-webkit-input-placeholder {
+    color: #aaa !important;
+    opacity: 1;
+    text-transform: none;
 }
 
- :-ms-input-placeholder {
-	color: #aaa !important;
+section#contact :-moz-placeholder {
+    color: #aaa !important;
+    opacity: 1;
+    text-transform: none;
 }
 
-.section-subheading {
-	color: #fff;
+section#contact ::-moz-placeholder {
+    color: #aaa !important;
+    opacity: 1;
+    text-transform: none;
+}
+
+section#contact :-ms-input-placeholder {
+    color: #aaa !important;
+    opacity: 1;
+    text-transform: none;
 }

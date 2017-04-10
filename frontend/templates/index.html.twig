@@ -7,7 +7,7 @@
         <div class="row justify-content-md-center">
             <div class="col-sm-12 col-md-6 text-center">
                 <h2 class="section-heading">Wordt het fietsweer?</h2>
-                <h3 class="section-subheading text-muted">&nbsp;</h3>
+                <h3 class="section-subheading">Ontvang dagelijks een mail met actuele fiets-informatie.</h3>
             </div>
         </div>
         <div class="row justify-content-md-center">
@@ -15,25 +15,28 @@
                 <form name="register" id="register" method="post" action="/save">
 
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Van *" name="location_start" id="location_start" onFocus="geolocate()" required>
+                        <label for="location_start">Beginlocatie:</label>
+                        <input type="text" class="form-control" placeholder="b.v. Oosterhout" name="location_start" id="location_start" onFocus="geolocate()" required>
                         <input type="hidden" name="location_start_lat" id="location_start_lat">
                         <input type="hidden" name="location_start_lng" id="location_start_lng">
                     </div>
 
                     <div class="form-group">
-                        <input type="text" class="form-control" placeholder="Naar *" name="location_end" id="location_end" required>
+                        <label for="location_start">Eindlocatie:</label>
+                        <input type="text" class="form-control" placeholder="b.v. Breda" name="location_end" id="location_end" required>
                         <input type="hidden" name="location_end_lat" id="location_end_lat">
                         <input type="hidden" name="location_end_lng" id="location_end_lng">
-                        <p class="help-block text-danger"></p>
                     </div>
 
                     <div class="form-group">
+                        <label for="location_start">Notificatie ontvangen om:</label>
                         <input type="time" pattern="([01]?[0-9]|2[0-3]):[0-5][0-9]" class="form-control" placeholder="Notificatietijd *" name="notification_time" id="notification_time" required>
                         <p class="help-block text-danger"></p>
                     </div>
 
                     <div class="form-group">
-                        <input type="email" class="form-control" placeholder="E-mailadres *" name="email" id="email" required>
+                        <label for="location_start">Jouw e-mailadres:</label>
+                        <input type="email" class="form-control"  name="email" id="email" required>
                         <p class="help-block text-danger"></p>
                     </div>
 
@@ -41,7 +44,7 @@
 
                     <div class="text-center">
                         <div id="success"></div>
-                        <button type="submit" class="btn btn-xl">Registreren</button>
+                        <button type="submit" class="btn btn-xl">Aanmelden</button>
                     </div>
                 </form>
             </div>
