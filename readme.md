@@ -13,8 +13,9 @@
 ## Installeren en starten (Java)
 
 1. `$ cd apache-camel\Integratie`
+2. Kopieer `example.properties` naar `config.properties` en vul de juiste waardes in
 2. `$ mvn compile exec:java -Dexec.mainClass=org.groepc.App`
 
-## Codeship
+## Continuous Integration/Deployment
 
 [ ![Codeship Status for groepc/IDH15-integratie](https://app.codeship.com/projects/e4c2a890-e181-0134-5caa-76fc8c1e432b/status?branch=master)](https://app.codeship.com/projects/205535)
